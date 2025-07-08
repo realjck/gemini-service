@@ -14,10 +14,15 @@ docker build -t gemini-service .
 ### Run container :
 
 ```bash
-docker run -d --restart always -p 2222:5000 --name gemini-service-container -e GOOGLE_API_KEY="YOUR-API-KEY" -e GEMINI_MODEL_TYPE="gemini-2.5-flash-preview-04-17" gemini-service
+docker run -d --restart always -p 2222:5000 --name gemini-service-container \
+  -e GOOGLE_API_KEY="YOUR-API-KEY" \
+  -e GEMINI_MODEL_TYPE="gemini-2.5-flash-preview-04-17" \
+  -e CORS_ORIGIN="https://your-domain.com" \
+  gemini-service
 ```
 
-Personnalize with the GEMINI_MODEL_TYPE you want to use.
+- Personnalize with the GEMINI_MODEL_TYPE you want to use.
+- CORS_ORIGIN is optional, if not specified it will allow all origins (*)
 
 ## API Routes Overview
 

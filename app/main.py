@@ -34,7 +34,16 @@ model = genai.GenerativeModel(os.getenv("GEMINI_MODEL_TYPE"))
 chat_session = model.start_chat()
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
-CORS(app)
+
+cors_origin_env = os.getenv("CORS_ORIGIN")
+
+if cors_origin_env:
+    print(f"CORS enabled for origin: {cors_origin_env}")
+    CORS(app, resources={r"/*": {"origins": [cors_origin_env]}})
+else:
+    print("CORS enabled for all origins (CORS_ORIGIN not defined)")
+    CORS(app)
+
 
 next_message = ""
 next_image = ""
