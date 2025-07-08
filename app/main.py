@@ -56,7 +56,11 @@ def allowed_file(filename):
 
 @app.route("/upload", methods=["POST"])
 def upload_file():
-
+    """
+    Receives an image file (PNG, JPG, JPEG)
+    and stores it temporarily to be used
+    in the subsequent /stream request with a text message.
+    """
     global next_image
 
     if "file" not in request.files:
@@ -83,11 +87,20 @@ def upload_file():
 
 @app.route("/", methods=["GET"])
 def index():
+    """
+    Returns a simple JSON response indicating
+    the backend service is running and healthy.
+    """
     return jsonify({"status": "healthy", "message": "Gemini API backend running"}), 200
 
 
 @app.route("/chat", methods=["POST"])
 def chat():
+    """
+    Accepts a text message from the user and stores it temporarily.
+    This message will then be processed by the /stream endpoint
+    to get the Gemini response, maintaining conversation history.
+    """
     global next_message
     next_message = request.json["message"]
     print(chat_session.get_history())
@@ -97,6 +110,13 @@ def chat():
 
 @app.route("/stream", methods=["GET"])
 def stream():
+    """
+    Initiates a Server-Sent Events (SSE) stream
+    to provide real-time responses from the Gemini API.
+    It uses the last text message from /chat
+    and/or the last uploaded image from /upload.
+    This endpoint maintains the chat session history.
+    """
     def generate():
         global next_message
         global next_image
@@ -127,6 +147,11 @@ def stream():
                     
 @app.route('/generate_text', methods=['POST'])
 def generate_text_api():
+    """
+    Sends a prompt directly to the Gemini API to get a text response.
+    This route does not use the ongoing chat session history
+    maintained by /chat and /stream.
+    """
     try:
         data = request.get_json()
         prompt_message = data.get('prompt')
