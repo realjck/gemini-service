@@ -1,7 +1,6 @@
 """
 GEMINI-SERVICE
 Backend to interact with the Google Gemini API
-Adapted for google-genai library
 
 jck 2025
 """
@@ -25,13 +24,11 @@ from google.genai import types
 
 load_dotenv()
 
-# Configuration du client Gemini
 client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 MODEL_NAME = os.getenv("GEMINI_MODEL_TYPE", "gemini-1.5-flash-latest")
 
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg"}
 
-# Initialisation de la session de chat
 chat_session = client.chats.create(model=MODEL_NAME)
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
@@ -46,11 +43,12 @@ else:
     CORS(app)
 
 next_message = ""
-next_image = None  # Changé pour stocker l'image directement
+next_image = None
 
 def allowed_file(filename):
     _, ext = os.path.splitext(filename)
     return ext.lstrip('.').lower() in ALLOWED_EXTENSIONS
+    
 
 @app.route("/upload", methods=["POST"])
 def upload_file():
@@ -82,6 +80,7 @@ def upload_file():
         )
     return jsonify(success=False, message="File type not allowed")
 
+
 @app.route("/", methods=["GET"])
 def index():
     """
@@ -89,6 +88,7 @@ def index():
     the backend service is running and healthy.
     """
     return jsonify({"status": "healthy", "message": "Gemini API backend running"}), 200
+
 
 @app.route("/chat", methods=["POST"])
 def chat():
@@ -101,6 +101,7 @@ def chat():
     next_message = request.json["message"]
     print([msg.to_dict() for msg in chat_session.history])
     return jsonify(success=True)
+
 
 @app.route("/stream", methods=["GET"])
 def stream():
@@ -117,7 +118,6 @@ def stream():
 
         parts = []
         if next_image is not None:
-            # Convertir l'image PIL en bytes
             img_byte_arr = io.BytesIO()
             next_image.save(img_byte_arr, format='PNG')
             img_byte_arr = img_byte_arr.getvalue()
@@ -132,7 +132,6 @@ def stream():
             yield "data: No message or image to process.\n\n"
             return
             
-        # Envoi du message avec streaming
         response_stream = chat_session.send_message_stream(parts)
 
         for chunk in response_stream:
@@ -140,6 +139,7 @@ def stream():
                 yield f"data: {chunk.text}\n\n"
 
     return Response(stream_with_context(generate()), mimetype="text/event-stream")
+
 
 @app.route('/generate_text', methods=['POST'])
 def generate_text_api():
@@ -166,6 +166,7 @@ def generate_text_api():
     except Exception as e:
         print(f"Error during generate_text_api: {e}")
         return jsonify({"error": str(e)}), 500
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
