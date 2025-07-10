@@ -99,7 +99,6 @@ def chat():
     """
     global next_message
     next_message = request.json["message"]
-    print([msg.to_dict() for msg in chat_session.history])
     return jsonify(success=True)
 
 
