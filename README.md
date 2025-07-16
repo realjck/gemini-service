@@ -16,7 +16,7 @@ docker build -t gemini-service .
 ```bash
 docker run -d --restart always -p 2222:5000 --name gemini-service-container \
   -e GOOGLE_API_KEY="YOUR-API-KEY" \
-  -e GEMINI_MODEL_TYPE="gemini-2.5-flash-preview-04-17" \
+  -e GEMINI_MODEL_TYPE="gemini-2.5-flash" \
   -e CORS_ORIGIN="https://your-domain.com" \
   gemini-service
 ```
